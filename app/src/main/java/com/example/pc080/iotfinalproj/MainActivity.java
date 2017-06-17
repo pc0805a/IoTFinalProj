@@ -107,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     private Notification notification;
 
+    private boolean isBLEConnected = false;
+
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -290,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         imgBtnSocket1.setEnabled(true);
                     }}, 4000);
 
-
+                isBLEConnected = true;
             }
 
             //*********************//
@@ -309,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         //setUiState();
                     }
                 });
+                isBLEConnected = false;
 
             }
 
@@ -609,10 +612,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         if(crtl){
             txtSocket0.setVisibility(View.VISIBLE);
             txtSocket1.setVisibility(View.VISIBLE);
-            imgBtnSocket0.setEnabled(true);
             imgBtnSocket0.setVisibility(View.VISIBLE);
-            imgBtnSocket1.setEnabled(true);
             imgBtnSocket1.setVisibility(View.VISIBLE);
+
+            if(isBLEConnected) {
+                imgBtnSocket0.setEnabled(true);
+                imgBtnSocket1.setEnabled(true);
+            }
+
             btnConnectDisconnect.setEnabled(true);
             btnConnectDisconnect.setVisibility(View.VISIBLE);
         }else{
@@ -679,9 +686,15 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         if(socket0_status==0) {
                             message = "0,0,on";
                             writeToDB(0, 1);
+                            if (isNotification) {
+                                setNotification(alarmDuration);
+                                notificationManager.notify(BASIC_ID, notification);
+                            }
                         } else{
                             message = "0,0,off";
                             writeToDB(0, 0);
+                            setNotification(alarmDuration);
+                            notificationManager.cancel(BASIC_ID);
                         }
                         byte[] value;
                         try {
@@ -732,9 +745,15 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         if(socket1_status==0) {
                             message = "0,1,on";
                             writeToDB(1, 1);
+                            if (isNotification) {
+                                setNotification(alarmDuration);
+                                notificationManager.notify(BASIC_ID, notification);
+                            }
                         } else{
                             message = "0,1,off";
                             writeToDB(1, 0);
+                            setNotification(alarmDuration);
+                            notificationManager.cancel(BASIC_ID);
                         }
                         byte[] value;
                         try {
@@ -803,8 +822,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     isNotification = true;
-                    setNotification(alarmDuration);
-                    notificationManager.notify(BASIC_ID, notification);
                 } else {
                     isNotification = false;
                     setNotification(alarmDuration);
